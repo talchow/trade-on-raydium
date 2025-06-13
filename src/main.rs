@@ -1,7 +1,7 @@
 use std::{env, sync::Arc};
 use raydium_swap::{amm::executor::*, api_v3::ApiV3Client, types::{SwapExecutionMode, SwapInput}};
 use solana_client::nonblocking::rpc_client::RpcClient;
-use solana_sdk::{pubkey::Pubkey, signer::{EncodableKey, SeedDerivable, Signer}, transaction::VersionedTransaction};
+use solana_sdk::{pubkey::Pubkey, signer::Signer, transaction::VersionedTransaction};
 use solana_sdk::pubkey;
 const SOL: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 const USDC: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
