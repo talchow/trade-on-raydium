@@ -9,12 +9,16 @@ const SOL: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
 const USDC: Pubkey = pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v");
 #[tokio::main]
 pub async fn main() ->anyhow::Result<()> {
-    let _guard = ftlog::builder().try_init().unwrap();
-    let client = Arc::new(RpcClient::new("http://api.testnet.solana.com".to_string()));
+    let _guard = ftlog::builder()
+        .root(Box::new(std::io::stdout()))
+        .max_log_level(ftlog::LevelFilter::Warn)
+        .try_init().unwrap();
+
+    let client = Arc::new(RpcClient::new("http://api.mainet-beta.solana.com".to_string()));
     let executor = RaydiumAmm::new(
         Arc::clone(&client),
         RaydiumAmmExecutorOpts::default(),
-        ApiV3Client::new(None)
+        ApiV3Client::new(None),
     );
     trace!("Creating executor sucess!");
 
