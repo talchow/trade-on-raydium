@@ -9,3 +9,4 @@ tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
 anyhow = "1.0.98"
 solana-client = "1.18.16"
 solana-sdk = "1.18.16"
+ftlog = "0.2.15"
