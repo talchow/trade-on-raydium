@@ -3390,7 +3390,7 @@ dependencies = [
 [[package]]
 name = "raydium_swap"
 version = "0.1.0"
-source = "git+https://github.com/talchow/raydium-swap#d0980c73f32acc756bbfc23426455e8a404c44b2"
+source = "git+https://github.com/talchow/raydium-swap#b219e86a88856ac077216d490fdb1565108de25b"
 dependencies = [
  "anchor-client",
  "anyhow",
@@ -5620,6 +5620,7 @@ dependencies = [
  "solana-client",
  "solana-sdk",
  "spl-associated-token-account 3.0.4",
+ "spl-token-2022 3.0.5",
  "tokio",
 ]
 

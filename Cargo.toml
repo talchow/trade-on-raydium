@@ -7,7 +7,8 @@ edition = "2024"
 raydium_swap = { git = "https://github.com/talchow/raydium-swap"}
 tokio = { version = "1.45.1", features = ["macros", "rt-multi-thread"] }
 anyhow = "1.0.98"
+ftlog = "0.2.15"
 solana-client = "1.18.16"
 solana-sdk = "1.18.16"
-ftlog = "0.2.15"
 spl-associated-token-account = "3.0.4"
+spl-token-2022 = "3.0.4"
