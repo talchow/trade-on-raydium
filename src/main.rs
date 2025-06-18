@@ -11,6 +11,7 @@ use solana_sdk::{
     signature::Keypair,
     signer::Signer,
     transaction::VersionedTransaction,
+    message::{VersionedMessage, Message},
 };
 use spl_associated_token_account::{
      get_associated_token_address, instruction::create_associated_token_account
@@ -19,7 +20,7 @@ use std::{env, sync::Arc};
 use spl_token_2022::id as spl_token_id;
 
 const SOL: Pubkey = pubkey!("So11111111111111111111111111111111111111112");
-const USDC: Pubkey = pubkey!("Gh9ZwEmdLJ8DscKNTkTqPbNwLNNBjuSzaG9Vp2KGtKJr");
+const USDT: Pubkey = pubkey!("Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB");
 
 #[tokio::main]
 pub async fn main() -> anyhow::Result<()> {
@@ -28,32 +29,29 @@ pub async fn main() -> anyhow::Result<()> {
         .max_log_level(ftlog::LevelFilter::Trace)
         .try_init()
         .expect("Failed to initialize logger");
+
     // 从环境变量中获取钱包的Base58字符串
-    trace!(
-        "wallet:{:?}----111111111111111111111111111111111111111",
-        env::var("SOLFLARE_WALLET").expect("SOLFLARE_WALLET must be set")
-    );
     let wallet = Keypair::from_base58_string(
         &env::var("SOLFLARE_WALLET").expect("SOLFLARE_WALLET must be set"),
     );
 
     // 创建一个异步的Solana RPC客户端
-    let client = Arc::new(RpcClient::new("https://api.devnet.solana.com".to_string()));
+    let client = Arc::new(RpcClient::new("https://api.mainnet-beta.solana.com".to_string()));
     trace!("RPC client created successfully!----222222222222222222222222222222222222");
 
  // 获取钱包地址,并查询 钱包余额
     let balance = client.get_balance(&wallet.pubkey()).await?;
-    trace!("the wallet balance is: {}----33333333333333333333333333333333333333333333", balance);
+    trace!("the wallet balance is: {}----33333333333333333333333333333333333333333333", balance / 1_000_000_000);
 
     // 检查钱包是否有USDC的关联token账户，如果没有则创建一个
     // 创建关联token账户(此处为USDC)
     // 创建关联token账户的目的是为了能够接收和存储USDC代币
     // 根据solana的规则,一切操作皆是交易,所以需要创建一个交易来执行这个操作
-    let usdc_account = get_associated_token_address(&wallet.pubkey(), &USDC);
-    trace!("USDC associated token account: {}----4444444444444444444444444444444", usdc_account);
+    let usdt_account = get_associated_token_address(&wallet.pubkey(), &USDT);
+    trace!("USDT associated token account: {}----4444444444444444444444444444444", usdt_account);
 
-    if client.get_account_data(&usdc_account).await.is_err() {
-        trace!("Creating associated token account for USDC...----5555555555555555555555555555555555555");
+    if client.get_account_data(&usdt_account).await.is_err() {
+        trace!("Creating associated token account for USDT...----5555555555555555555555555555555555555");
         
         let token_program_id = Pubkey::new_from_array(spl_token_id().to_bytes());
         trace!("Token program ID: {}----6666666666666666666666666666", token_program_id);
@@ -61,7 +59,7 @@ pub async fn main() -> anyhow::Result<()> {
         let create_instruction = create_associated_token_account(
             &wallet.pubkey(),
             &wallet.pubkey(),
-            &USDC,
+            &USDT,
             &token_program_id,
         );
         trace!("Create instruction successfully!----777777777777777777777777777777777777");
@@ -69,18 +67,18 @@ pub async fn main() -> anyhow::Result<()> {
         let recent_blockhash = client.get_latest_blockhash().await?;
         trace!("Recent blockhash successfully retrieved!----8888888888888888888888888888888888888888");
 
-        // let create_transaction = VersionedTransaction::try_new(
-            // VersionedMessage::Legacy(Message::new_with_blockhash(
-                // &[create_instruction],
-                // Some(&wallet.pubkey()),
-                // &recent_blockhash,
-            // )),
-            // &[&wallet],
-        // )?;
+        let create_transaction = VersionedTransaction::try_new(
+            VersionedMessage::Legacy(Message::new_with_blockhash(
+                &[create_instruction],
+                Some(&wallet.pubkey()),
+                &recent_blockhash,
+            )),
+            &[&wallet],
+        )?;
 
-        let create_transaction = Transaction::new_signed_with_payer(
-            &[create_instruction], Some(&wallet.pubkey()), &[&wallet], recent_blockhash
-        );
+        // let create_transaction = Transaction::new_signed_with_payer(
+            // &[create_instruction], Some(&wallet.pubkey()), &[&wallet], recent_blockhash
+        // );
         trace!("Create transaction created successfully!----99999999999999999999999999999999999999999999999999");
 
         // 已发现error原因: 交易签名失败,原因是交易签名时,交易中的公钥和私钥不匹配,导致交易签名失败?
@@ -89,7 +87,7 @@ pub async fn main() -> anyhow::Result<()> {
         let sig = client
             .send_and_confirm_transaction(&create_transaction)
             .await?;
-        trace!("Associated token account created for USDC!----AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        trace!("Associated token account created for USDT!----AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         trace!(
             "checkout the transaction: https://explorer.solana.com/tx/{}?cluster=devnet
             ----BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB",
@@ -102,8 +100,8 @@ pub async fn main() -> anyhow::Result<()> {
         get_associated_token_address(&wallet.pubkey(), &SOL)
     );
     trace!(
-        "USDC 账户地址: {}----DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
-        get_associated_token_address(&wallet.pubkey(), &USDC)
+        "USDT 账户地址: {}----DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",
+        get_associated_token_address(&wallet.pubkey(), &USDT)
     );
 
    
@@ -117,10 +115,10 @@ pub async fn main() -> anyhow::Result<()> {
 
     // 创建一个swap输入
     let swap_input = SwapInput {
-        input_token_mint: SOL,
-        output_token_mint: USDC,
-        slippage_bps: 100,
-        amount: 10000000,
+        input_token_mint: USDT,
+        output_token_mint: SOL,
+        slippage_bps: 50,
+        amount: 1,
         mode: SwapExecutionMode::ExactIn,
         market: None,
     };

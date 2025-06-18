@@ -3390,7 +3390,7 @@ dependencies = [
 [[package]]
 name = "raydium_swap"
 version = "0.1.0"
-source = "git+https://github.com/talchow/raydium-swap#b219e86a88856ac077216d490fdb1565108de25b"
+source = "git+https://github.com/talchow/raydium-swap#f4717770e167d6efd302695286eb65cdf623fbf4"
 dependencies = [
  "anchor-client",
  "anyhow",
